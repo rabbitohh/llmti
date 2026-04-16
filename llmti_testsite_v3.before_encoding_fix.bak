@@ -1,0 +1,1070 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>LLMTI 璇█妯″瀷椋庢牸娴嬭瘯</title>
+  <meta
+    name="description"
+    content="LLMTI 浠庤〃杈鹃鏍笺€佹€濊€冩柟寮忋€佹矡閫氬亸濂戒笌鎺㈢储鍊惧悜鍥涗釜缁村害锛岃瘎浼颁綘鏇存帴杩戝摢涓€绉嶈瑷€妯″瀷椋庢牸銆?
+  />
+  <style>
+    :root{
+      --bg:#fcf8f2;
+      --bg2:#f5ede4;
+      --panel:rgba(255,255,255,.86);
+      --panel-strong:rgba(255,255,255,.92);
+      --line:rgba(124,100,77,.12);
+      --line-strong:rgba(124,100,77,.2);
+      --text:#2d241d;
+      --muted:#7d6f61;
+      --accent:#c98246;
+      --accent2:#efd0b2;
+      --accent3:#8fa6af;
+      --shadow:0 24px 60px rgba(126,96,60,.12);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      min-height:100vh;
+      color:var(--text);
+      font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+      position:relative;
+      background:
+        radial-gradient(circle at top left, rgba(201,130,70,.15), transparent 24%),
+        radial-gradient(circle at top right, rgba(143,166,175,.14), transparent 28%),
+        linear-gradient(180deg, #fffdfa 0%, var(--bg) 42%, var(--bg2) 100%);
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-120px auto auto 50%;
+      width:min(780px,82vw);
+      height:min(780px,82vw);
+      transform:translateX(-50%);
+      background:radial-gradient(circle, rgba(255,255,255,.92) 0%, rgba(255,255,255,0) 68%);
+      pointer-events:none;
+      z-index:-1;
+    }
+    .app{
+      width:min(860px,calc(100vw - 28px));
+      margin:18px auto 40px;
+    }
+    .screen{display:none;animation:fade .2s ease}
+    .screen.active{display:block}
+    @keyframes fade{
+      from{opacity:.25;transform:translateY(8px)}
+      to{opacity:1;transform:none}
+    }
+    .card{
+      position:relative;
+      overflow:hidden;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(16px);
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-70px -40px auto auto;
+      width:220px;
+      height:220px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(239,208,178,.5), transparent 70%);
+      pointer-events:none;
+    }
+    h1,h2,h3,p{margin:0}
+    .hero{
+      min-height:calc(100vh - 58px);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:40px 28px;
+      text-align:center;
+    }
+    .title{
+      font-size:clamp(34px,7vw,54px);
+      line-height:1.05;
+      letter-spacing:.3px;
+      margin-bottom:14px;
+      color:#2b2119;
+    }
+    .sub{
+      font-size:19px;
+      color:#6f6152;
+      margin-bottom:28px;
+    }
+    .toolbar,.footer-actions,.nav,.topbar,.progress-meta,.bar-head{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .toolbar{
+      justify-content:center;
+    }
+    button{
+      appearance:none;
+      border:1px solid transparent;
+      cursor:pointer;
+      border-radius:15px;
+      padding:14px 18px;
+      font-size:15px;
+      font-weight:700;
+      box-shadow:0 10px 24px rgba(138,106,71,.08);
+      transition:transform .14s ease, border-color .14s ease, background .14s ease, opacity .14s ease, box-shadow .14s ease, color .14s ease;
+    }
+    button:hover:not(:disabled){
+      transform:translateY(-1px);
+      box-shadow:0 14px 30px rgba(138,106,71,.12);
+    }
+    button:active{transform:scale(.985)}
+    button:disabled{
+      cursor:not-allowed;
+      opacity:.48;
+      transform:none;
+    }
+    .btn-primary{
+      color:#fffdf9;
+      background:linear-gradient(135deg, #d29257, #be7438);
+      border-color:rgba(162,98,43,.16);
+    }
+    .btn-secondary{
+      color:var(--text);
+      background:rgba(255,250,243,.92);
+      border:1px solid var(--line-strong);
+    }
+    .btn-ghost{
+      color:#735f4e;
+      background:rgba(255,255,255,.52);
+      border:1px solid var(--line-strong);
+    }
+    .test-shell,.result{
+      padding:20px;
+    }
+    .topbar{
+      justify-content:space-between;
+      margin-bottom:14px;
+    }
+    .topbar .left small{
+      display:block;
+      margin-top:5px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .progress-wrap{
+      margin-bottom:18px;
+    }
+    .progress-meta{
+      justify-content:space-between;
+      font-size:14px;
+      color:#746554;
+      margin-bottom:8px;
+    }
+    .progress{
+      height:12px;
+      background:#efe4d6;
+      border-radius:999px;
+      border:1px solid var(--line);
+      overflow:hidden;
+    }
+    .progress > div{
+      width:0;
+      height:100%;
+      background:linear-gradient(90deg, var(--accent), var(--accent2));
+      transition:width .2s ease;
+    }
+    .question-card{
+      padding:22px 18px 18px;
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(255,255,255,.94), rgba(250,245,238,.98));
+      border:1px solid rgba(124,100,77,.1);
+    }
+    .dim-tag{
+      display:inline-block;
+      margin-bottom:10px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(201,130,70,.1);
+      border:1px solid rgba(201,130,70,.18);
+      color:#8e592f;
+      font-size:13px;
+    }
+    .qindex{
+      font-size:14px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .qtext{
+      font-size:23px;
+      line-height:1.55;
+      margin-bottom:16px;
+    }
+    .opts{
+      display:grid;
+      gap:10px;
+    }
+    .opt input{display:none}
+    .opt label{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-height:60px;
+      padding:14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--line);
+      color:var(--text);
+      box-shadow:0 8px 24px rgba(130,100,69,.05);
+      transition:transform .14s ease, border-color .14s ease, background .14s ease;
+      user-select:none;
+    }
+    .opt label .score{
+      width:30px;
+      height:30px;
+      flex:0 0 30px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:#f8eee2;
+      border:1px solid rgba(124,100,77,.12);
+      font-size:13px;
+    }
+    .opt input:checked + label{
+      background:rgba(248,237,224,.96);
+      border-color:rgba(201,130,70,.5);
+      box-shadow:0 14px 28px rgba(161,114,67,.08), inset 0 0 0 1px rgba(201,130,70,.16);
+      transform:translateY(-1px);
+    }
+    .tip{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.8;
+    }
+    .nav{
+      justify-content:space-between;
+      margin-top:16px;
+    }
+    .nav .right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .result-hero{
+      margin-bottom:14px;
+      padding:22px 18px;
+      border-radius:20px;
+      background:linear-gradient(135deg, rgba(255,255,255,.98), rgba(247,238,227,.92));
+      border:1px solid rgba(124,100,77,.1);
+    }
+    .result-hero h2{
+      font-size:28px;
+      margin-bottom:8px;
+    }
+    .main-model{
+      display:block;
+      margin:8px 0;
+      font-size:clamp(34px, 8vw, 52px);
+      font-weight:900;
+      line-height:1.05;
+    }
+    .type-sub{
+      display:inline-block;
+      margin:0 0 12px;
+      padding:6px 12px;
+      border-radius:999px;
+      background:rgba(255,248,240,.92);
+      border:1px solid rgba(201,130,70,.18);
+      color:#8a5d3a;
+      font-size:15px;
+      font-weight:700;
+      letter-spacing:1px;
+    }
+    .pill-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .pill{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.88);
+      border:1px solid var(--line);
+      color:#6d5b4b;
+      font-size:14px;
+    }
+    .result-grid{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:14px;
+      margin-top:14px;
+    }
+    .panel{
+      padding:18px;
+      border-radius:18px;
+      background:var(--panel-strong);
+      border:1px solid var(--line);
+    }
+    .panel h3{
+      font-size:18px;
+      margin-bottom:10px;
+    }
+    .small{
+      font-size:13px;
+      line-height:1.75;
+      color:var(--muted);
+    }
+    .model-item{
+      padding:13px;
+      border-radius:14px;
+      background:#fffbf6;
+      border:1px solid var(--line);
+    }
+    .model-item + .model-item{
+      margin-top:10px;
+    }
+    .bars{
+      display:grid;
+      gap:12px;
+    }
+    .bar-row{
+      display:grid;
+      gap:6px;
+    }
+    .bar-head{
+      justify-content:space-between;
+      font-size:14px;
+      color:#514437;
+    }
+    .dual{
+      position:relative;
+      height:14px;
+      background:#f1e6da;
+      border-radius:999px;
+      border:1px solid var(--line);
+      overflow:hidden;
+    }
+    .dual::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:0;
+      bottom:0;
+      width:1px;
+      background:rgba(124,100,77,.16);
+    }
+    .leftbar,.rightbar{
+      position:absolute;
+      top:0;
+      height:100%;
+      transition:width .2s ease;
+    }
+    .leftbar{
+      right:50%;
+      width:0;
+      background:linear-gradient(90deg, #e0b17c, #f3d6b2);
+    }
+    .rightbar{
+      left:50%;
+      width:0;
+      background:linear-gradient(90deg, var(--accent3), #cfdee2);
+    }
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:rgba(246,238,228,.46);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .18s ease;
+      z-index:40;
+    }
+    .modal-overlay.active{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .modal{
+      width:min(460px,calc(100vw - 32px));
+      padding:22px 20px 18px;
+      border-radius:22px;
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(124,100,77,.12);
+      box-shadow:0 28px 60px rgba(126,96,60,.14);
+      transform:translateY(10px) scale(.98);
+      transition:transform .18s ease;
+    }
+    .modal-overlay.active .modal{
+      transform:translateY(0) scale(1);
+    }
+    .modal-title{
+      font-size:22px;
+      line-height:1.2;
+      margin-bottom:10px;
+    }
+    .modal-text{
+      font-size:15px;
+      line-height:1.75;
+      color:var(--muted);
+    }
+    .modal-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      margin-top:18px;
+    }
+    @media (max-width:720px){
+      .app{width:min(100vw - 18px, 860px);margin:10px auto 26px}
+      .hero,.test-shell,.result{padding:18px}
+      .result-grid{grid-template-columns:1fr}
+      .qtext{font-size:20px}
+      .topbar,.nav{flex-direction:column;align-items:stretch}
+      .topbar .btn-ghost,.nav button,.nav .right,.nav .right button,.toolbar button{width:100%}
+      .toolbar{flex-direction:column}
+      .modal-actions{flex-direction:column}
+      .modal-actions button{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="screen active" id="homeScreen">
+      <div class="card hero">
+        <h1 class="title">LLMTI 璇█妯″瀷椋庢牸娴嬭瘯</h1>
+        <p class="sub">24 棰?路 棰勮 3 鍒?5 鍒嗛挓瀹屾垚</p>
+        <div class="toolbar">
+          <button class="btn-primary" id="startBtn">寮€濮嬫祴璇?/button>
+          <button class="btn-secondary" id="resumeBtn">缁х画涓婃浣滅瓟</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="testScreen">
+      <div class="card test-shell">
+        <div class="topbar">
+          <div class="left">
+            <strong>LLMTI 璇█妯″瀷椋庢牸娴嬭瘯</strong>
+            <small id="dimDesc">C / F 路 绋冲仴 vs 鍙戞暎</small>
+          </div>
+          <button class="btn-ghost" id="backHomeBtn">杩斿洖棣栭〉</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="progressText">绗?1 / 24 棰?/span>
+            <span id="answeredText">宸蹭綔绛?0 / 24</span>
+          </div>
+          <div class="progress"><div id="progressFill"></div></div>
+        </div>
+        <div class="question-card">
+          <div class="dim-tag" id="dimTag">C / F</div>
+          <div class="qindex" id="qIndex">绗?1 棰?/div>
+          <div class="qtext" id="qText"></div>
+          <div class="opts" id="optionsBox"></div>
+          <div class="tip">1 = 闈炲父涓嶅悓鎰忥紝2 = 姣旇緝涓嶅悓鎰忥紝3 = 涓嶇‘瀹氾紝4 = 姣旇緝鍚屾剰锛? = 闈炲父鍚屾剰</div>
+          <div class="nav">
+            <button class="btn-secondary" id="prevBtn">涓婁竴棰?/button>
+            <div class="right">
+              <button class="btn-ghost" id="jumpFirstUnansweredBtn">璺冲埌鏈畬鎴愰鐩?/button>
+              <button class="btn-primary" id="nextBtn">涓嬩竴棰?/button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="resultScreen">
+      <div class="card result">
+        <div class="result-hero">
+          <h2>娴嬭瘎缁撴灉</h2>
+          <span class="main-model" id="mainModelText">ChatGPT 鍨?/span>
+          <div class="type-sub" id="typeText">LLMTI 路 CAHG</div>
+          <p id="summaryText"></p>
+          <div class="pill-row" id="pillRow"></div>
+        </div>
+        <div class="result-grid">
+          <div class="panel">
+            <h3>妯″瀷鍘熷瀷鍖归厤</h3>
+            <div id="modelList"></div>
+            <div class="small" style="margin-top:12px;">
+              鍖归厤搴﹀睍绀虹殑鏄鏍肩浉浼兼€э紝涓嶄唬琛ㄧ湡瀹炴ā鍨嬭兘鍔涢珮浣庯紝涔熶笉鏄涓汉琛ㄧ幇鐨勮瘎浠枫€?            </div>
+          </div>
+          <div class="panel">
+            <h3>鍥涚淮鍒嗗竷</h3>
+            <div class="bars" id="barsBox"></div>
+            <div class="small" id="rawText" style="margin-top:12px;"></div>
+          </div>
+        </div>
+        <div class="footer-actions" style="margin-top:16px;">
+          <button class="btn-primary" id="restartBtn">閲嶆柊娴嬭瘯</button>
+          <button class="btn-secondary" id="backHomeFromResultBtn">杩斿洖棣栭〉</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalText">
+      <h3 class="modal-title" id="modalTitle">鎻愮ず</h3>
+      <p class="modal-text" id="modalText"></p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="modalCancelBtn" type="button">鍙栨秷</button>
+        <button class="btn-primary" id="modalOkBtn" type="button">纭畾</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      { id: 1, dim: "C / F", dimDesc: "C / F 路 绋冲仴 vs 鍙戞暎", text: "鍋氫簨鍓嶏紝鎴戞洿鍠滄鍏堢‘璁よ鍒欍€侀檺鍒跺拰杈圭晫銆? },
+      { id: 2, dim: "C / F", dimDesc: "C / F 路 绋冲仴 vs 鍙戞暎", text: "姣旇捣鈥滃厛璇曡瘯鐪嬧€濓紝鎴戞洿鍊惧悜浜庘€滃厛鎯虫竻妤氬啀鍔ㄦ墜鈥濄€? },
+      { id: 3, dim: "C / F", dimDesc: "C / F 路 绋冲仴 vs 鍙戞暎", text: "鎴戝緢鍠滄鎶婁竴涓櫘閫氫换鍔＄帺鍑烘柊鑺辨牱銆? },
+      { id: 4, dim: "C / F", dimDesc: "C / F 路 绋冲仴 vs 鍙戞暎", text: "灏辩畻鏉′欢杩樹笉瀹屾暣锛屾垜涔熸効鎰忓厛缁欏嚭涓€涓ぇ鑳嗙増鏈€? },
+      { id: 5, dim: "C / F", dimDesc: "C / F 路 绋冲仴 vs 鍙戞暎", text: "鎴戜笉澶枩娆㈠お璺宠劚銆佸お涓嶅彈鎺х殑琛ㄨ揪銆? },
+      { id: 6, dim: "C / F", dimDesc: "C / F 路 绋冲仴 vs 鍙戞暎", text: "鎴戣寰椻€滄湁瓒ｂ€濇湁鏃舵瘮鈥滀弗璋ㄢ€濇洿閲嶈銆? },
+      { id: 7, dim: "A / D", dimDesc: "A / D 路 鍒嗘瀽 vs 鐩存帴", text: "鎴戜範鎯妸澶嶆潅闂鎷嗘垚鍑犳鏉ュ鐞嗐€? },
+      { id: 8, dim: "A / D", dimDesc: "A / D 路 鍒嗘瀽 vs 鐩存帴", text: "鍒汉闂棶棰樻椂锛屾垜甯稿父浼氬厛鎯斥€滆儗鍚庣殑閫昏緫鏄粈涔堚€濄€? },
+      { id: 9, dim: "A / D", dimDesc: "A / D 路 鍒嗘瀽 vs 鐩存帴", text: "鎴戞洿鍠滄鐩存帴缁欑粨璁猴紝鑰屼笉鏄暱绡囧垎鏋愩€? },
+      { id: 10, dim: "A / D", dimDesc: "A / D 路 鍒嗘瀽 vs 鐩存帴", text: "鎴戜笉鍠滄缁曪紝鑳戒竴鍙ヨ鏄庣櫧灏变竴鍙ヨ娓呫€? },
+      { id: 11, dim: "A / D", dimDesc: "A / D 路 鍒嗘瀽 vs 鐩存帴", text: "鐪嬪埌涓€涓娉曪紝鎴戜細鏈兘鍦版兂楠岃瘉瀹冩槸鍚︽垚绔嬨€? },
+      { id: 12, dim: "A / D", dimDesc: "A / D 路 鍒嗘瀽 vs 鐩存帴", text: "鍦ㄥ緢澶氬満鏅噷锛岄€熷害姣斿畬鏁存帹瀵兼洿閲嶈銆? },
+      { id: 13, dim: "H / P", dimDesc: "H / P 路 浜哄懗 vs 绮惧噯", text: "鎴戣璇濇椂浼氶【鍙婂鏂逛細涓嶄細瑙夊緱琚啋鐘垨琚喎钀姐€? },
+      { id: 14, dim: "H / P", dimDesc: "H / P 路 浜哄懗 vs 绮惧噯", text: "灏辩畻鏄閬撶悊锛屾垜涔熷笇鏈涜〃杈炬柟寮忚浜鸿垝鏈嶃€? },
+      { id: 15, dim: "H / P", dimDesc: "H / P 路 浜哄懗 vs 绮惧噯", text: "鎴戞洿鍦ㄦ剰鍐呭鍑嗕笉鍑嗙‘锛岃€屼笉鏄姘斿ソ涓嶅ソ銆? },
+      { id: 16, dim: "H / P", dimDesc: "H / P 路 浜哄懗 vs 绮惧噯", text: "鎴戜笉鍠滄澶鎯呯华閾哄灚锛屼俊鎭竻妤氭渶閲嶈銆? },
+      { id: 17, dim: "H / P", dimDesc: "H / P 路 浜哄懗 vs 绮惧噯", text: "鎴戝父浼氳嚜瑙夋浛瀵规柟琛ュ彴闃躲€佺暀浣欏湴銆? },
+      { id: 18, dim: "H / P", dimDesc: "H / P 路 浜哄懗 vs 绮惧噯", text: "鎴戣寰椻€滆寰楁俯鍜屸€濇湁鏃朵細濡ㄧ鏁堢巼銆? },
+      { id: 19, dim: "G / X", dimDesc: "G / X 路 閫氱敤 vs 鎺㈢储", text: "鎴戞洿鍠滄绋冲Ε銆侀€氱敤銆侀€傚悎澶у鏁颁汉鐨勬柟妗堛€? },
+      { id: 20, dim: "G / X", dimDesc: "G / X 路 閫氱敤 vs 鎺㈢储", text: "鎴戜笉澶埍璧扮壒鍒亸銆佺壒鍒喎闂ㄧ殑璺嚎銆? },
+      { id: 21, dim: "G / X", dimDesc: "G / X 路 閫氱敤 vs 鎺㈢储", text: "鎴戜細涓诲姩鑱旀兂鍒颁竴浜涘埆浜烘病鎻愬埌鐨勬柟鍚戙€? },
+      { id: 22, dim: "G / X", dimDesc: "G / X 路 閫氱敤 vs 鎺㈢储", text: "鎴戝枩娆㈠皾璇曟柊宸ュ叿銆佹柊鐜╂硶銆佹柊妗嗘灦銆? },
+      { id: 23, dim: "G / X", dimDesc: "G / X 路 閫氱敤 vs 鎺㈢储", text: "鎴戣寰椻€滃鐢ㄣ€佸彲闈犫€濋€氬父姣斺€滄柊濂囥€佺壒鍒€濇洿閲嶈銆? },
+      { id: 24, dim: "G / X", dimDesc: "G / X 路 閫氱敤 vs 鎺㈢储", text: "涓€涓瘽棰樺彧鑱婅〃闈細璁╂垜瑙夊緱涓嶈繃鐦俱€? }
+    ];
+
+    const MODEL_PROTOTYPES = [
+  {
+    name: "ChatGPT 鍨?,
+    vector: { CF: 3, AD: 2, HP: 2, GX: 2 },
+    desc: "鏁翠綋鍧囪　銆佺ǔ瀹氥€佹硾鐢ㄦ€у己锛屾棦璁查€昏緫锛屼篃浼氬敖閲忔妸璇濊鏄庣櫧銆?
+  },
+  {
+    name: "DeepSeek 鍨?,
+    vector: { CF: 2, AD: 5, HP: -2, GX: 0 },
+    desc: "鍒嗘瀽娆叉洿寮猴紝鍋忕悊鎬э紝鍠滄鎷嗚В鍜屾帹瀵硷紝瀵圭粨鏋勬劅瑕佹眰鏇撮珮銆?
+  },
+  {
+    name: "璞嗗寘鍨?,
+    vector: { CF: -2, AD: -3, HP: 4, GX: 1 },
+    desc: "鑱婂ぉ鎰熷己锛屼翰鍜岀洿鎺ワ紝鍙嶉蹇紝琛ㄨ揪鏇磋交鏉捐嚜鐒躲€?
+  },
+  {
+    name: "Claude 鍨?,
+    vector: { CF: 5, AD: 1, HP: 4, GX: 1 },
+    desc: "鏇村厠鍒躲€佹洿璁茶竟鐣屾劅锛岄噸瑙嗗垎瀵搞€佺ǔ濡ヤ笌瀹屾暣琛ㄨ揪銆?
+  },
+  {
+    name: "Gemini 鍨?,
+    vector: { CF: -4, AD: 0, HP: 1, GX: -5 },
+    desc: "鍙戞暎涓庢帰绱㈡閮芥洿寮猴紝鑱旀兂涓板瘜锛屽枩娆㈡妸璇濋寤跺睍鍒版柊鏂瑰悜銆?
+  },
+  {
+    name: "Kimi 鍨?,
+    vector: { CF: 1, AD: -4, HP: 0, GX: 3 },
+    desc: "浠诲姟瀵煎悜鏄庢樉锛屾暣鐞嗕笌鎵ц鎰熷己锛屾洿閲嶈瀹炵敤涓庢晥鐜囥€?
+  },
+
+  {
+    name: "閫氫箟鍨?,
+    vector: { CF: 1, AD: 1, HP: 1, GX: 2 },
+    desc: "鏁翠綋鍋忓潎琛★紝瀹炵敤鎬у拰閫氱敤鎬ч兘涓嶉敊锛岄鏍肩浉瀵圭ǔ锛屼笉浼氬お璺炽€?
+  },
+  {
+    name: "鏂囧績鍨?,
+    vector: { CF: 3, AD: 0, HP: 3, GX: 1 },
+    desc: "琛ㄨ揪鏇村畬鏁淬€佸亸绋抽噸锛屾瘮杈冨己璋冨彲璇绘€с€佺ぜ璨屾劅鍜屾垚娈佃緭鍑恒€?
+  },
+  {
+    name: "璁鏄熺伀鍨?,
+    vector: { CF: 2, AD: 1, HP: 2, GX: 0 },
+    desc: "鏁翠綋鍋忕ǔ锛岃〃杈炬竻妤氾紝姣旇緝閫傚悎甯歌浜ゆ祦鍜屾爣鍑嗕换鍔″満鏅€?
+  },
+  {
+    name: "Grok 鍨?,
+    vector: { CF: -3, AD: -1, HP: -1, GX: -4 },
+    desc: "鏇存斁寰楀紑锛岃烦璺冩劅鏇村己锛屾暍鎺ユ锛屾帰绱㈡鏄庢樉锛屼篃鏇翠笉鎸夊父瑙勫嚭鐗屻€?
+  },
+  {
+    name: "Copilot 鍨?,
+    vector: { CF: 2, AD: 3, HP: -1, GX: 2 },
+    desc: "杈呭姪鎰熷己锛屽亸浠诲姟鍗忎綔锛岃姝ラ鍜岃惤鍦帮紝姣旇緝鍍忓府浣犳妸浜嬪線鍓嶆帹銆?
+  }
+];
+
+    const OPTIONS = [
+      { value: 1, label: "闈炲父涓嶅悓鎰? },
+      { value: 2, label: "姣旇緝涓嶅悓鎰? },
+      { value: 3, label: "涓嶇‘瀹? },
+      { value: 4, label: "姣旇緝鍚屾剰" },
+      { value: 5, label: "闈炲父鍚屾剰" }
+    ];
+
+    const DESCRIPTIONS = {
+      C: "鏇翠範鎯厛鎯虫竻妤氬啀琛屽姩锛屽亸绋冲仴涓庡彲鎺с€?,
+      F: "鏇存効鎰忓厛鍙戞暎銆佸厛璇曞仛锛屽蹇嶄笉瀹屾暣鐗堟湰銆?,
+      A: "浼氭湰鑳藉湴鎷嗛棶棰樸€佹壘閫昏緫銆侀噸鎺ㄥ銆?,
+      D: "缁撹浼樺厛锛岃〃杈剧洿鎺ワ紝鏇村叧娉ㄦ帹杩涙晥鐜囥€?,
+      H: "璇磋瘽浼氱収椤炬劅鍙椼€佸満鏅笌瀵规柟鎺ュ彈搴︺€?,
+      P: "鏇撮噸淇℃伅鍑嗙‘銆佽〃杈惧共鍑€鍜屽垽鏂竻鏅般€?,
+      G: "鍊惧悜绋冲Ε銆侀€氱敤銆佸彲澶嶇敤鐨勮В鍐虫柟寮忋€?,
+      X: "鍠滄鎺㈢储鏂拌搴︼紝涓嶆弧瓒充簬鏍囧噯绛旀銆?,
+      M: "杩欎竴缁村害鏁翠綋姣旇緝骞宠　锛屾病鏈夋槑鏄惧亸鍚戙€?
+    };
+
+    const STORAGE_KEY_ANSWERS = "llmti_v3_answers";
+    const STORAGE_KEY_INDEX = "llmti_v3_index";
+
+    let currentIndex = 0;
+    let answers = {};
+
+    const $ = (selector) => document.querySelector(selector);
+    const modalOverlay = $("#modalOverlay");
+    const modalTitle = $("#modalTitle");
+    const modalText = $("#modalText");
+    const modalOkBtn = $("#modalOkBtn");
+    const modalCancelBtn = $("#modalCancelBtn");
+    let modalResolve = null;
+
+    const homeScreen = $("#homeScreen");
+    const testScreen = $("#testScreen");
+    const resultScreen = $("#resultScreen");
+    const resumeBtn = $("#resumeBtn");
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY_ANSWERS, JSON.stringify(answers));
+      localStorage.setItem(STORAGE_KEY_INDEX, String(currentIndex));
+      updateHomeActions();
+    }
+
+    function loadState() {
+      try {
+        answers = JSON.parse(localStorage.getItem(STORAGE_KEY_ANSWERS) || "{}");
+      } catch (error) {
+        answers = {};
+      }
+
+      const storedIndex = Number(localStorage.getItem(STORAGE_KEY_INDEX));
+      if (!Number.isNaN(storedIndex) && storedIndex >= 0 && storedIndex < QUESTIONS.length) {
+        currentIndex = storedIndex;
+      } else {
+        currentIndex = 0;
+      }
+    }
+
+    function clearState() {
+      answers = {};
+      currentIndex = 0;
+      localStorage.removeItem(STORAGE_KEY_ANSWERS);
+      localStorage.removeItem(STORAGE_KEY_INDEX);
+      updateHomeActions();
+    }
+
+    function showScreen(name) {
+      homeScreen.classList.remove("active");
+      testScreen.classList.remove("active");
+      resultScreen.classList.remove("active");
+
+      if (name === "home") homeScreen.classList.add("active");
+      if (name === "test") testScreen.classList.add("active");
+      if (name === "result") resultScreen.classList.add("active");
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function answeredCount() {
+      return QUESTIONS.filter((question) => answers[question.id] != null).length;
+    }
+
+    function hasSavedProgress() {
+      return answeredCount() > 0;
+    }
+
+    function updateHomeActions() {
+      const count = answeredCount();
+      const completed = count === QUESTIONS.length;
+
+      resumeBtn.disabled = count === 0;
+      resumeBtn.textContent = completed ? "鏌ョ湅涓婃缁撴灉" : "缁х画涓婃浣滅瓟";
+    }
+
+    function renderQuestion() {
+      const question = QUESTIONS[currentIndex];
+      $("#dimDesc").textContent = question.dimDesc;
+      $("#dimTag").textContent = question.dim;
+      $("#qIndex").textContent = `绗?${question.id} 棰榒;
+      $("#qText").textContent = question.text;
+      $("#progressText").textContent = `绗?${question.id} / ${QUESTIONS.length} 棰榒;
+      $("#answeredText").textContent = `宸蹭綔绛?${answeredCount()} / ${QUESTIONS.length}`;
+      $("#progressFill").style.width = `${(answeredCount() / QUESTIONS.length) * 100}%`;
+
+      const box = $("#optionsBox");
+      box.innerHTML = "";
+
+      OPTIONS.forEach((option) => {
+        const item = document.createElement("div");
+        item.className = "opt";
+        item.innerHTML = `
+          <input type="radio" name="currentQuestion" id="opt_${option.value}" value="${option.value}">
+          <label for="opt_${option.value}">
+            <span class="score">${option.value}</span>
+            <span>${option.label}</span>
+          </label>
+        `;
+        box.appendChild(item);
+      });
+
+      if (answers[question.id] != null) {
+        const checked = document.getElementById(`opt_${answers[question.id]}`);
+        if (checked) checked.checked = true;
+      }
+
+      box.querySelectorAll('input[name="currentQuestion"]').forEach((input) => {
+        input.addEventListener("change", () => {
+          answers[question.id] = Number(input.value);
+          saveState();
+          $("#progressFill").style.width = `${(answeredCount() / QUESTIONS.length) * 100}%`;
+          $("#answeredText").textContent = `宸蹭綔绛?${answeredCount()} / ${QUESTIONS.length}`;
+        });
+      });
+
+      $("#prevBtn").disabled = currentIndex === 0;
+      $("#nextBtn").textContent = currentIndex === QUESTIONS.length - 1 ? "鏌ョ湅缁撴灉" : "涓嬩竴棰?;
+    }
+
+    function findFirstUnanswered() {
+      return QUESTIONS.findIndex((question) => answers[question.id] == null);
+    }
+
+    function openModal({ title = "\u63d0\u793a", message = "", confirm = false }) {
+      modalTitle.textContent = title;
+      modalText.textContent = message;
+      modalCancelBtn.style.display = confirm ? "inline-flex" : "none";
+      modalOverlay.classList.add("active");
+      modalOverlay.setAttribute("aria-hidden", "false");
+
+      return new Promise((resolve) => {
+        modalResolve = resolve;
+        requestAnimationFrame(() => modalOkBtn.focus());
+      });
+    }
+
+    function closeModal(result = false) {
+      if (!modalResolve) return;
+      const resolve = modalResolve;
+      modalResolve = null;
+      modalOverlay.classList.remove("active");
+      modalOverlay.setAttribute("aria-hidden", "true");
+      resolve(result);
+    }
+
+    function showNotice(message, title = "\u63d0\u793a") {
+      return openModal({ title, message, confirm: false });
+    }
+
+    function showConfirm(message, title = "\u8bf7\u786e\u8ba4") {
+      return openModal({ title, message, confirm: true });
+    }
+    function nextQuestion() {
+      const question = QUESTIONS[currentIndex];
+      if (answers[question.id] == null) {
+        showNotice("\u8bf7\u5148\u5b8c\u6210\u5f53\u524d\u9898\u76ee\u518d\u7ee7\u7eed\u3002");
+        return;
+      }
+
+      if (currentIndex < QUESTIONS.length - 1) {
+        currentIndex += 1;
+        saveState();
+        renderQuestion();
+        return;
+      }
+
+      showResult();
+    }
+
+    function prevQuestion() {
+      if (currentIndex === 0) return;
+      currentIndex -= 1;
+      saveState();
+      renderQuestion();
+    }
+
+    function sum(ids) {
+      return ids.reduce((total, id) => total + (answers[id] || 0), 0);
+    }
+
+    function letter(positive, negative, value) {
+      if (value > 0) return positive;
+      if (value < 0) return negative;
+      return "M";
+    }
+
+    function dimPercent(diff) {
+      return Math.min(100, Math.round((Math.abs(diff) / 12) * 100));
+    }
+
+    function showResult() {
+      const missingIndex = findFirstUnanswered();
+      if (missingIndex >= 0) {
+        currentIndex = missingIndex;
+        saveState();
+        renderQuestion();
+        showScreen("test");
+        return;
+      }
+
+      const C = sum([1, 2, 5]);
+      const F = sum([3, 4, 6]);
+      const A = sum([7, 8, 11]);
+      const D = sum([9, 10, 12]);
+      const H = sum([13, 14, 17]);
+      const P = sum([15, 16, 18]);
+      const G = sum([19, 20, 23]);
+      const X = sum([21, 22, 24]);
+
+      const CF = C - F;
+      const AD = A - D;
+      const HP = H - P;
+      const GX = G - X;
+
+      const type = [
+        letter("C", "F", CF),
+        letter("A", "D", AD),
+        letter("H", "P", HP),
+        letter("G", "X", GX)
+      ].join("");
+
+      const sorted = MODEL_PROTOTYPES
+        .map((prototype) => {
+          const distance = Math.sqrt(
+            (CF - prototype.vector.CF) ** 2 +
+            (AD - prototype.vector.AD) ** 2 +
+            (HP - prototype.vector.HP) ** 2 +
+            (GX - prototype.vector.GX) ** 2
+          );
+          return { ...prototype, distance };
+        })
+        .sort((a, b) => a.distance - b.distance);
+
+      const top3 = sorted.slice(0, 3);
+      const maxDistance = top3[top3.length - 1].distance || 1;
+      const minDistance = top3[0].distance;
+
+      const viewTop3 = top3.map((item) => {
+        const base = maxDistance === minDistance
+          ? 100
+          : Math.round(100 - ((item.distance - minDistance) / (maxDistance - minDistance)) * 30 - item.distance * 4);
+        return {
+          ...item,
+          similarity: Math.max(55, Math.min(96, base))
+        };
+      });
+
+      $("#mainModelText").textContent = viewTop3[0].name;
+      $("#typeText").textContent = `LLMTI 路 ${type}`;
+
+      const dominantLetters = [
+        CF > 0 ? "C" : CF < 0 ? "F" : "M",
+        AD > 0 ? "A" : AD < 0 ? "D" : "M",
+        HP > 0 ? "H" : HP < 0 ? "P" : "M",
+        GX > 0 ? "G" : GX < 0 ? "X" : "M"
+      ];
+
+      const explainText = dominantLetters
+        .filter((key, index, list) => list.indexOf(key) === index && DESCRIPTIONS[key])
+        .map((key) => DESCRIPTIONS[key])
+        .join(" ");
+
+      $("#summaryText").textContent = `浣犳渶鎺ヨ繎 ${viewTop3[0].name}銆傛暣浣撴潵鐪嬶紝${viewTop3[0].desc}${explainText ? ` ${explainText}` : ""}`;
+
+      const pillRow = $("#pillRow");
+      pillRow.innerHTML = "";
+      [
+        `鏈€鎺ヨ繎锛?{viewTop3[0].name}`,
+        `绗簩鍖归厤锛?{viewTop3[1].name}`,
+        `绗笁鍖归厤锛?{viewTop3[2].name}`,
+        `瀹屾垚搴︼細${QUESTIONS.length} / ${QUESTIONS.length}`
+      ].forEach((text) => {
+        const pill = document.createElement("div");
+        pill.className = "pill";
+        pill.textContent = text;
+        pillRow.appendChild(pill);
+      });
+
+      const modelList = $("#modelList");
+      modelList.innerHTML = "";
+      viewTop3.forEach((item, index) => {
+        const block = document.createElement("div");
+        block.className = "model-item";
+        block.innerHTML = `
+          <div><strong>Top ${index + 1} 路 ${item.name}</strong> 路 鍖归厤搴?${item.similarity}%</div>
+          <div class="small">${item.desc}</div>
+        `;
+        modelList.appendChild(block);
+      });
+
+      const dims = [
+        { key: "CF", left: "F", right: "C", value: CF, leftScore: F, rightScore: C },
+        { key: "AD", left: "D", right: "A", value: AD, leftScore: D, rightScore: A },
+        { key: "HP", left: "P", right: "H", value: HP, leftScore: P, rightScore: H },
+        { key: "GX", left: "X", right: "G", value: GX, leftScore: X, rightScore: G }
+      ];
+
+      const barsBox = $("#barsBox");
+      barsBox.innerHTML = "";
+      dims.forEach((dim) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        const pct = dimPercent(dim.value);
+        row.innerHTML = `
+          <div class="bar-head">
+            <span>${dim.left}</span>
+            <span>${dim.key} 路 ${dim.value > 0 ? "+" : ""}${dim.value}</span>
+            <span>${dim.right}</span>
+          </div>
+          <div class="dual">
+            <div class="leftbar" style="width:${dim.value < 0 ? pct / 2 : 0}%"></div>
+            <div class="rightbar" style="width:${dim.value > 0 ? pct / 2 : 0}%"></div>
+          </div>
+          <div class="small">${dim.left} 鍚戝緱鍒?= ${dim.leftScore}锛?{dim.right} 鍚戝緱鍒?= ${dim.rightScore}</div>
+        `;
+        barsBox.appendChild(row);
+      });
+
+      $("#rawText").innerHTML = `C = ${C}锛孎 = ${F}<br>A = ${A}锛孌 = ${D}<br>H = ${H}锛孭 = ${P}<br>G = ${G}锛孹 = ${X}`;
+      showScreen("result");
+    }
+
+    modalOkBtn.addEventListener("click", () => {
+      closeModal(true);
+    });
+
+    modalCancelBtn.addEventListener("click", () => {
+      closeModal(false);
+    });
+
+    modalOverlay.addEventListener("click", (event) => {
+      if (event.target === modalOverlay) {
+        closeModal(false);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && modalResolve) {
+        closeModal(false);
+      }
+    });
+
+    $("#startBtn").addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      if (hasSavedProgress()) {
+        const confirmed = await showConfirm("\u5f00\u59cb\u6d4b\u8bd5\u4f1a\u6e05\u9664\u5f53\u524d\u672c\u5730\u8fdb\u5ea6\uff0c\u786e\u8ba4\u91cd\u65b0\u5f00\u59cb\u5417\uff1f");
+        if (!confirmed) return;
+      }
+
+      clearState();
+      renderQuestion();
+      showScreen("test");
+    }, true);
+
+    $("#resumeBtn").addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      loadState();
+      if (!hasSavedProgress()) {
+        showNotice("\u5f53\u524d\u6ca1\u6709\u53ef\u7ee7\u7eed\u7684\u4f5c\u7b54\u8bb0\u5f55\u3002");
+        updateHomeActions();
+        return;
+      }
+
+      if (answeredCount() === QUESTIONS.length) {
+        showResult();
+        return;
+      }
+
+      const firstUnanswered = findFirstUnanswered();
+      currentIndex = firstUnanswered >= 0 ? firstUnanswered : currentIndex;
+      saveState();
+      renderQuestion();
+      showScreen("test");
+    }, true);
+
+    $("#backHomeBtn").addEventListener("click", () => {
+      showScreen("home");
+      updateHomeActions();
+    });
+
+    $("#backHomeFromResultBtn").addEventListener("click", () => {
+      showScreen("home");
+      updateHomeActions();
+    });
+
+    $("#prevBtn").addEventListener("click", prevQuestion);
+
+    $("#nextBtn").addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      const question = QUESTIONS[currentIndex];
+      if (answers[question.id] == null) {
+        showNotice("\u8bf7\u5148\u5b8c\u6210\u5f53\u524d\u9898\u76ee\u518d\u7ee7\u7eed\u3002");
+        return;
+      }
+
+      if (currentIndex < QUESTIONS.length - 1) {
+        currentIndex += 1;
+        saveState();
+        renderQuestion();
+        return;
+      }
+
+      showResult();
+    }, true);
+
+    $("#restartBtn").addEventListener("click", () => {
+      clearState();
+      renderQuestion();
+      showScreen("test");
+    });
+
+    $("#jumpFirstUnansweredBtn").addEventListener("click", () => {
+      const index = findFirstUnanswered();
+      if (index >= 0) {
+        currentIndex = index;
+        saveState();
+        renderQuestion();
+        return;
+      }
+
+      showResult();
+    });
+
+    loadState();
+    updateHomeActions();
+  </script>
+</body>
+</html>
+
+
+

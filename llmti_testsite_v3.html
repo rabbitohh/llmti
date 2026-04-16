@@ -1,0 +1,997 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>LLMTI 语言模型风格测试</title>
+  <meta
+    name="description"
+    content="LLMTI 从表达风格、思考方式、沟通偏好与探索倾向四个维度，评估你更接近哪一种语言模型风格。"
+  />
+  <style>
+    :root{
+      --bg:#fcf8f2;
+      --bg2:#f5ede4;
+      --panel:rgba(255,255,255,.86);
+      --panel-strong:rgba(255,255,255,.92);
+      --line:rgba(124,100,77,.12);
+      --line-strong:rgba(124,100,77,.2);
+      --text:#2d241d;
+      --muted:#7d6f61;
+      --accent:#c98246;
+      --accent2:#efd0b2;
+      --accent3:#8fa6af;
+      --shadow:0 24px 60px rgba(126,96,60,.12);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      min-height:100vh;
+      color:var(--text);
+      font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+      position:relative;
+      background:
+        radial-gradient(circle at top left, rgba(201,130,70,.15), transparent 24%),
+        radial-gradient(circle at top right, rgba(143,166,175,.14), transparent 28%),
+        linear-gradient(180deg, #fffdfa 0%, var(--bg) 42%, var(--bg2) 100%);
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-120px auto auto 50%;
+      width:min(780px,82vw);
+      height:min(780px,82vw);
+      transform:translateX(-50%);
+      background:radial-gradient(circle, rgba(255,255,255,.92) 0%, rgba(255,255,255,0) 68%);
+      pointer-events:none;
+      z-index:-1;
+    }
+    .app{
+      width:min(860px,calc(100vw - 28px));
+      margin:18px auto 40px;
+    }
+    .screen{display:none;animation:fade .2s ease}
+    .screen.active{display:block}
+    @keyframes fade{
+      from{opacity:.25;transform:translateY(8px)}
+      to{opacity:1;transform:none}
+    }
+    .card{
+      position:relative;
+      overflow:hidden;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(16px);
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-70px -40px auto auto;
+      width:220px;
+      height:220px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(239,208,178,.5), transparent 70%);
+      pointer-events:none;
+    }
+    h1,h2,h3,p{margin:0}
+    .hero{
+      min-height:calc(100vh - 58px);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:40px 28px;
+      text-align:center;
+    }
+    .title{
+      font-size:clamp(34px,7vw,54px);
+      line-height:1.05;
+      letter-spacing:.3px;
+      margin-bottom:14px;
+      color:#2b2119;
+    }
+    .sub{
+      font-size:19px;
+      color:#6f6152;
+      margin-bottom:28px;
+    }
+    .toolbar,.footer-actions,.nav,.topbar,.progress-meta,.bar-head{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .toolbar{
+      justify-content:center;
+    }
+    button{
+      appearance:none;
+      border:1px solid transparent;
+      cursor:pointer;
+      border-radius:15px;
+      padding:14px 18px;
+      font-size:15px;
+      font-weight:700;
+      box-shadow:0 10px 24px rgba(138,106,71,.08);
+      transition:transform .14s ease, border-color .14s ease, background .14s ease, opacity .14s ease, box-shadow .14s ease, color .14s ease;
+    }
+    button:hover:not(:disabled){
+      transform:translateY(-1px);
+      box-shadow:0 14px 30px rgba(138,106,71,.12);
+    }
+    button:active{transform:scale(.985)}
+    button:disabled{
+      cursor:not-allowed;
+      opacity:.48;
+      transform:none;
+    }
+    .btn-primary{
+      color:#fffdf9;
+      background:linear-gradient(135deg, #d29257, #be7438);
+      border-color:rgba(162,98,43,.16);
+    }
+    .btn-secondary{
+      color:var(--text);
+      background:rgba(255,250,243,.92);
+      border:1px solid var(--line-strong);
+    }
+    .btn-ghost{
+      color:#735f4e;
+      background:rgba(255,255,255,.52);
+      border:1px solid var(--line-strong);
+    }
+    .test-shell,.result{
+      padding:20px;
+    }
+    .topbar{
+      justify-content:space-between;
+      margin-bottom:14px;
+    }
+    .topbar .left small{
+      display:block;
+      margin-top:5px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .progress-wrap{
+      margin-bottom:18px;
+    }
+    .progress-meta{
+      justify-content:space-between;
+      font-size:14px;
+      color:#746554;
+      margin-bottom:8px;
+    }
+    .progress{
+      height:12px;
+      background:#efe4d6;
+      border-radius:999px;
+      border:1px solid var(--line);
+      overflow:hidden;
+    }
+    .progress > div{
+      width:0;
+      height:100%;
+      background:linear-gradient(90deg, var(--accent), var(--accent2));
+      transition:width .2s ease;
+    }
+    .question-card{
+      padding:22px 18px 18px;
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(255,255,255,.94), rgba(250,245,238,.98));
+      border:1px solid rgba(124,100,77,.1);
+    }
+    .dim-tag{
+      display:inline-block;
+      margin-bottom:10px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(201,130,70,.1);
+      border:1px solid rgba(201,130,70,.18);
+      color:#8e592f;
+      font-size:13px;
+    }
+    .qindex{
+      font-size:14px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .qtext{
+      font-size:23px;
+      line-height:1.55;
+      margin-bottom:16px;
+    }
+    .opts{
+      display:grid;
+      gap:10px;
+    }
+    .opt input{display:none}
+    .opt label{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-height:60px;
+      padding:14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--line);
+      color:var(--text);
+      box-shadow:0 8px 24px rgba(130,100,69,.05);
+      transition:transform .14s ease, border-color .14s ease, background .14s ease;
+      user-select:none;
+    }
+    .opt label .score{
+      width:30px;
+      height:30px;
+      flex:0 0 30px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:#f8eee2;
+      border:1px solid rgba(124,100,77,.12);
+      font-size:13px;
+    }
+    .opt input:checked + label{
+      background:rgba(248,237,224,.96);
+      border-color:rgba(201,130,70,.5);
+      box-shadow:0 14px 28px rgba(161,114,67,.08), inset 0 0 0 1px rgba(201,130,70,.16);
+      transform:translateY(-1px);
+    }
+    .tip{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.8;
+    }
+    .nav{
+      justify-content:space-between;
+      margin-top:16px;
+    }
+    .nav .right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .result-hero{
+      margin-bottom:14px;
+      padding:22px 18px;
+      border-radius:20px;
+      background:linear-gradient(135deg, rgba(255,255,255,.98), rgba(247,238,227,.92));
+      border:1px solid rgba(124,100,77,.1);
+    }
+    .result-hero h2{
+      font-size:28px;
+      margin-bottom:8px;
+    }
+    .main-model{
+      display:block;
+      margin:8px 0;
+      font-size:clamp(34px, 8vw, 52px);
+      font-weight:900;
+      line-height:1.05;
+    }
+    .type-sub{
+      display:inline-block;
+      margin:0 0 12px;
+      padding:6px 12px;
+      border-radius:999px;
+      background:rgba(255,248,240,.92);
+      border:1px solid rgba(201,130,70,.18);
+      color:#8a5d3a;
+      font-size:15px;
+      font-weight:700;
+      letter-spacing:1px;
+    }
+    .pill-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .pill{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.88);
+      border:1px solid var(--line);
+      color:#6d5b4b;
+      font-size:14px;
+    }
+    .result-grid{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:14px;
+      margin-top:14px;
+    }
+    .panel{
+      padding:18px;
+      border-radius:18px;
+      background:var(--panel-strong);
+      border:1px solid var(--line);
+    }
+    .panel h3{
+      font-size:18px;
+      margin-bottom:10px;
+    }
+    .small{
+      font-size:13px;
+      line-height:1.75;
+      color:var(--muted);
+    }
+    .model-item{
+      padding:13px;
+      border-radius:14px;
+      background:#fffbf6;
+      border:1px solid var(--line);
+    }
+    .model-item + .model-item{
+      margin-top:10px;
+    }
+    .bars{
+      display:grid;
+      gap:12px;
+    }
+    .bar-row{
+      display:grid;
+      gap:6px;
+    }
+    .bar-head{
+      justify-content:space-between;
+      font-size:14px;
+      color:#514437;
+    }
+    .dual{
+      position:relative;
+      height:14px;
+      background:#f1e6da;
+      border-radius:999px;
+      border:1px solid var(--line);
+      overflow:hidden;
+    }
+    .dual::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:0;
+      bottom:0;
+      width:1px;
+      background:rgba(124,100,77,.16);
+    }
+    .leftbar,.rightbar{
+      position:absolute;
+      top:0;
+      height:100%;
+      transition:width .2s ease;
+    }
+    .leftbar{
+      right:50%;
+      width:0;
+      background:linear-gradient(90deg, #e0b17c, #f3d6b2);
+    }
+    .rightbar{
+      left:50%;
+      width:0;
+      background:linear-gradient(90deg, var(--accent3), #cfdee2);
+    }
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:rgba(246,238,228,.46);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .18s ease;
+      z-index:40;
+    }
+    .modal-overlay.active{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .modal{
+      width:min(460px,calc(100vw - 32px));
+      padding:22px 20px 18px;
+      border-radius:22px;
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(124,100,77,.12);
+      box-shadow:0 28px 60px rgba(126,96,60,.14);
+      transform:translateY(10px) scale(.98);
+      transition:transform .18s ease;
+    }
+    .modal-overlay.active .modal{
+      transform:translateY(0) scale(1);
+    }
+    .modal-title{
+      font-size:22px;
+      line-height:1.2;
+      margin-bottom:10px;
+    }
+    .modal-text{
+      font-size:15px;
+      line-height:1.75;
+      color:var(--muted);
+    }
+    .modal-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      margin-top:18px;
+    }
+    @media (max-width:720px){
+      .app{width:min(100vw - 18px, 860px);margin:10px auto 26px}
+      .hero,.test-shell,.result{padding:18px}
+      .result-grid{grid-template-columns:1fr}
+      .qtext{font-size:20px}
+      .topbar,.nav{flex-direction:column;align-items:stretch}
+      .topbar .btn-ghost,.nav button,.nav .right,.nav .right button,.toolbar button{width:100%}
+      .toolbar{flex-direction:column}
+      .modal-actions{flex-direction:column}
+      .modal-actions button{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="screen active" id="homeScreen">
+      <div class="card hero">
+        <h1 class="title">LLMTI 语言模型风格测试</h1>
+        <p class="sub">24 题 · 预计 3 到 5 分钟完成</p>
+        <div class="toolbar">
+          <button class="btn-primary" id="startBtn">开始测试</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="testScreen">
+      <div class="card test-shell">
+        <div class="topbar">
+          <div class="left">
+            <strong>LLMTI 语言模型风格测试</strong>
+            <small id="dimDesc">C / F · 稳健 vs 发散</small>
+          </div>
+          <button class="btn-ghost" id="backHomeBtn">返回首页</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="progressText">第 1 / 24 题</span>
+            <span id="answeredText">已作答 0 / 24</span>
+          </div>
+          <div class="progress"><div id="progressFill"></div></div>
+        </div>
+        <div class="question-card">
+          <div class="dim-tag" id="dimTag">C / F</div>
+          <div class="qindex" id="qIndex">第 1 题</div>
+          <div class="qtext" id="qText"></div>
+          <div class="opts" id="optionsBox"></div>
+          <div class="tip">1 = 非常不同意，2 = 比较不同意，3 = 不确定，4 = 比较同意，5 = 非常同意</div>
+          <div class="nav">
+            <button class="btn-secondary" id="prevBtn">上一题</button>
+            <div class="right">
+              <button class="btn-ghost" id="jumpFirstUnansweredBtn">跳到未完成题目</button>
+              <button class="btn-primary" id="nextBtn">下一题</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="resultScreen">
+      <div class="card result">
+        <div class="result-hero">
+          <h2>测评结果</h2>
+          <span class="main-model" id="mainModelText">ChatGPT 型</span>
+          <div class="type-sub" id="typeText">LLMTI · CAHG</div>
+          <p id="summaryText"></p>
+          <div class="pill-row" id="pillRow"></div>
+        </div>
+        <div class="result-grid">
+          <div class="panel">
+            <h3>模型原型匹配</h3>
+            <div id="modelList"></div>
+            <div class="small" style="margin-top:12px;">
+              匹配度展示的是风格相似性，不代表真实模型能力高低，也不是对个人表现的评价。            </div>
+          </div>
+          <div class="panel">
+            <h3>四维分布</h3>
+            <div class="bars" id="barsBox"></div>
+            <div class="small" id="rawText" style="margin-top:12px;"></div>
+          </div>
+        </div>
+        <div class="footer-actions" style="margin-top:16px;">
+          <button class="btn-primary" id="restartBtn">重新测试</button>
+          <button class="btn-secondary" id="backHomeFromResultBtn">返回首页</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalText">
+      <h3 class="modal-title" id="modalTitle">提示</h3>
+      <p class="modal-text" id="modalText"></p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="modalCancelBtn" type="button">取消</button>
+        <button class="btn-primary" id="modalOkBtn" type="button">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      { id: 1, dim: "C / F", dimDesc: "C / F · 稳健 vs 发散", text: "做事前，我更喜欢先确认规则、限制和边界。" },
+      { id: 2, dim: "C / F", dimDesc: "C / F · 稳健 vs 发散", text: "比起“先试试看”，我更倾向于“先想清楚再动手”。" },
+      { id: 3, dim: "C / F", dimDesc: "C / F · 稳健 vs 发散", text: "我很喜欢把一个普通任务玩出新花样。" },
+      { id: 4, dim: "C / F", dimDesc: "C / F · 稳健 vs 发散", text: "就算条件还不完整，我也愿意先给出一个大胆版本。" },
+      { id: 5, dim: "C / F", dimDesc: "C / F · 稳健 vs 发散", text: "我不太喜欢太跳脱、太不受控的表达。" },
+      { id: 6, dim: "C / F", dimDesc: "C / F · 稳健 vs 发散", text: "我觉得“有趣”有时比“严谨”更重要。" },
+      { id: 7, dim: "A / D", dimDesc: "A / D · 分析 vs 直接", text: "我习惯把复杂问题拆成几步来处理。" },
+      { id: 8, dim: "A / D", dimDesc: "A / D · 分析 vs 直接", text: "别人问问题时，我常常会先想“背后的逻辑是什么”。" },
+      { id: 9, dim: "A / D", dimDesc: "A / D · 分析 vs 直接", text: "我更喜欢直接给结论，而不是长篇分析。" },
+      { id: 10, dim: "A / D", dimDesc: "A / D · 分析 vs 直接", text: "我不喜欢绕，能一句说明白就一句说清。" },
+      { id: 11, dim: "A / D", dimDesc: "A / D · 分析 vs 直接", text: "看到一个说法，我会本能地想验证它是否成立。" },
+      { id: 12, dim: "A / D", dimDesc: "A / D · 分析 vs 直接", text: "在很多场景里，速度比完整推导更重要。" },
+      { id: 13, dim: "H / P", dimDesc: "H / P · 人味 vs 精准", text: "我说话时会顾及对方会不会觉得被冒犯或被冷落。" },
+      { id: 14, dim: "H / P", dimDesc: "H / P · 人味 vs 精准", text: "就算是讲道理，我也希望表达方式让人舒服。" },
+      { id: 15, dim: "H / P", dimDesc: "H / P · 人味 vs 精准", text: "我更在意内容准不准确，而不是语气好不好。" },
+      { id: 16, dim: "H / P", dimDesc: "H / P · 人味 vs 精准", text: "我不喜欢太多情绪铺垫，信息清楚最重要。" },
+      { id: 17, dim: "H / P", dimDesc: "H / P · 人味 vs 精准", text: "我常会自觉替对方补台阶、留余地。" },
+      { id: 18, dim: "H / P", dimDesc: "H / P · 人味 vs 精准", text: "我觉得“说得温和”有时会妨碍效率。" },
+      { id: 19, dim: "G / X", dimDesc: "G / X · 通用 vs 探索", text: "我更喜欢稳妥、通用、适合大多数人的方案。" },
+      { id: 20, dim: "G / X", dimDesc: "G / X · 通用 vs 探索", text: "我不太爱走特别偏、特别冷门的路线。" },
+      { id: 21, dim: "G / X", dimDesc: "G / X · 通用 vs 探索", text: "我会主动联想到一些别人没提到的方向。" },
+      { id: 22, dim: "G / X", dimDesc: "G / X · 通用 vs 探索", text: "我喜欢尝试新工具、新玩法、新框架。" },
+      { id: 23, dim: "G / X", dimDesc: "G / X · 通用 vs 探索", text: "我觉得“够用、可靠”通常比“新奇、特别”更重要。" },
+      { id: 24, dim: "G / X", dimDesc: "G / X · 通用 vs 探索", text: "一个话题只聊表面会让我觉得不过瘾。" }
+    ];
+
+    const MODEL_PROTOTYPES = [
+  {
+    name: "ChatGPT 型",
+    vector: { CF: 3, AD: 2, HP: 2, GX: 2 },
+    desc: "整体均衡、稳定、泛用性强，既讲逻辑，也会尽量把话说明白。"
+  },
+  {
+    name: "DeepSeek 型",
+    vector: { CF: 2, AD: 5, HP: -2, GX: 0 },
+    desc: "分析欲更强，偏理性，喜欢拆解和推导，对结构感要求更高。"
+  },
+  {
+    name: "豆包型",
+    vector: { CF: -2, AD: -3, HP: 4, GX: 1 },
+    desc: "聊天感强，亲和直接，反馈快，表达更轻松自然。"
+  },
+  {
+    name: "Claude 型",
+    vector: { CF: 5, AD: 1, HP: 4, GX: 1 },
+    desc: "更克制、更讲边界感，重视分寸、稳妥与完整表达。"
+  },
+  {
+    name: "Gemini 型",
+    vector: { CF: -4, AD: 0, HP: 1, GX: -5 },
+    desc: "发散与探索欲都更强，联想丰富，喜欢把话题延展到新方向。"
+  },
+  {
+    name: "Kimi 型",
+    vector: { CF: 1, AD: -4, HP: 0, GX: 3 },
+    desc: "任务导向明显，整理与执行感强，更重视实用与效率。"
+  },
+
+  {
+    name: "通义型",
+    vector: { CF: 1, AD: 1, HP: 1, GX: 2 },
+    desc: "整体偏均衡，实用性和通用性都不错，风格相对稳，不会太跳。"
+  },
+  {
+    name: "文心型",
+    vector: { CF: 3, AD: 0, HP: 3, GX: 1 },
+    desc: "表达更完整、偏稳重，比较强调可读性、礼貌感和成段输出。"
+  },
+  {
+    name: "讯飞星火型",
+    vector: { CF: 2, AD: 1, HP: 2, GX: 0 },
+    desc: "整体偏稳，表达清楚，比较适合常规交流和标准任务场景。"
+  },
+  {
+    name: "Grok 型",
+    vector: { CF: -3, AD: -1, HP: -1, GX: -4 },
+    desc: "更放得开，跳跃感更强，敢接梗，探索欲明显，也更不按常规出牌。"
+  },
+  {
+    name: "Copilot 型",
+    vector: { CF: 2, AD: 3, HP: -1, GX: 2 },
+    desc: "辅助感强，偏任务协作，讲步骤和落地，比较像帮你把事往前推。"
+  }
+];
+
+    const OPTIONS = [
+      { value: 1, label: "非常不同意" },
+      { value: 2, label: "比较不同意" },
+      { value: 3, label: "不确定" },
+      { value: 4, label: "比较同意" },
+      { value: 5, label: "非常同意" }
+    ];
+
+    const DESCRIPTIONS = {
+      C: "更习惯先想清楚再行动，偏稳健与可控。",
+      F: "更愿意先发散、先试做，容忍不完整版本。",
+      A: "会本能地拆问题、找逻辑、重推导。",
+      D: "结论优先，表达直接，更关注推进效率。",
+      H: "说话会照顾感受、场景与对方接受度。",
+      P: "更重信息准确、表达干净和判断清晰。",
+      G: "倾向稳妥、通用、可复用的解决方式。",
+      X: "喜欢探索新角度，不满足于标准答案。",
+      M: "这一维度整体比较平衡，没有明显偏向。"
+    };
+
+    let currentIndex = 0;
+    let answers = {};
+
+    const $ = (selector) => document.querySelector(selector);
+    const modalOverlay = $("#modalOverlay");
+    const modalTitle = $("#modalTitle");
+    const modalText = $("#modalText");
+    const modalOkBtn = $("#modalOkBtn");
+    const modalCancelBtn = $("#modalCancelBtn");
+    let modalResolve = null;
+
+    const homeScreen = $("#homeScreen");
+    const testScreen = $("#testScreen");
+    const resultScreen = $("#resultScreen");
+
+    function clearState() {
+      answers = {};
+      currentIndex = 0;
+    }
+
+    function showScreen(name) {
+      homeScreen.classList.remove("active");
+      testScreen.classList.remove("active");
+      resultScreen.classList.remove("active");
+
+      if (name === "home") homeScreen.classList.add("active");
+      if (name === "test") testScreen.classList.add("active");
+      if (name === "result") resultScreen.classList.add("active");
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function answeredCount() {
+      return QUESTIONS.filter((question) => answers[question.id] != null).length;
+    }
+
+    function renderQuestion() {
+      const question = QUESTIONS[currentIndex];
+      $("#dimDesc").textContent = question.dimDesc;
+      $("#dimTag").textContent = question.dim;
+      $("#qIndex").textContent = `第 ${question.id} 题`;
+      $("#qText").textContent = question.text;
+      $("#progressText").textContent = `第 ${question.id} / ${QUESTIONS.length} 题`;
+      $("#answeredText").textContent = `已作答 ${answeredCount()} / ${QUESTIONS.length}`;
+      $("#progressFill").style.width = `${(answeredCount() / QUESTIONS.length) * 100}%`;
+
+      const box = $("#optionsBox");
+      box.innerHTML = "";
+
+      OPTIONS.forEach((option) => {
+        const item = document.createElement("div");
+        item.className = "opt";
+        item.innerHTML = `
+          <input type="radio" name="currentQuestion" id="opt_${option.value}" value="${option.value}">
+          <label for="opt_${option.value}">
+            <span class="score">${option.value}</span>
+            <span>${option.label}</span>
+          </label>
+        `;
+        box.appendChild(item);
+      });
+
+      if (answers[question.id] != null) {
+        const checked = document.getElementById(`opt_${answers[question.id]}`);
+        if (checked) checked.checked = true;
+      }
+
+      box.querySelectorAll('input[name="currentQuestion"]').forEach((input) => {
+        input.addEventListener("change", () => {
+          answers[question.id] = Number(input.value);
+          $("#progressFill").style.width = `${(answeredCount() / QUESTIONS.length) * 100}%`;
+          $("#answeredText").textContent = `已作答 ${answeredCount()} / ${QUESTIONS.length}`;
+        });
+      });
+
+      $("#prevBtn").disabled = currentIndex === 0;
+      $("#nextBtn").textContent = currentIndex === QUESTIONS.length - 1 ? "查看结果" : "下一题";
+    }
+
+    function findFirstUnanswered() {
+      return QUESTIONS.findIndex((question) => answers[question.id] == null);
+    }
+
+    function openModal({ title = "提示", message = "", confirm = false }) {
+      modalTitle.textContent = title;
+      modalText.textContent = message;
+      modalCancelBtn.style.display = confirm ? "inline-flex" : "none";
+      modalOverlay.classList.add("active");
+      modalOverlay.setAttribute("aria-hidden", "false");
+
+      return new Promise((resolve) => {
+        modalResolve = resolve;
+        requestAnimationFrame(() => modalOkBtn.focus());
+      });
+    }
+
+    function closeModal(result = false) {
+      if (!modalResolve) return;
+      const resolve = modalResolve;
+      modalResolve = null;
+      modalOverlay.classList.remove("active");
+      modalOverlay.setAttribute("aria-hidden", "true");
+      resolve(result);
+    }
+
+    function showNotice(message, title = "提示") {
+      return openModal({ title, message, confirm: false });
+    }
+
+    function showConfirm(message, title = "请确认") {
+      return openModal({ title, message, confirm: true });
+    }
+    function nextQuestion() {
+      const question = QUESTIONS[currentIndex];
+      if (answers[question.id] == null) {
+        showNotice("请先完成当前题目再继续。");
+        return;
+      }
+
+      if (currentIndex < QUESTIONS.length - 1) {
+        currentIndex += 1;
+        renderQuestion();
+        return;
+      }
+
+      showResult();
+    }
+
+    function prevQuestion() {
+      if (currentIndex === 0) return;
+      currentIndex -= 1;
+      renderQuestion();
+    }
+
+    function sum(ids) {
+      return ids.reduce((total, id) => total + (answers[id] || 0), 0);
+    }
+
+    function letter(positive, negative, value) {
+      if (value > 0) return positive;
+      if (value < 0) return negative;
+      return "M";
+    }
+
+    function dimPercent(diff) {
+      return Math.min(100, Math.round((Math.abs(diff) / 12) * 100));
+    }
+
+    function showResult() {
+      const missingIndex = findFirstUnanswered();
+      if (missingIndex >= 0) {
+        currentIndex = missingIndex;
+        renderQuestion();
+        showScreen("test");
+        return;
+      }
+
+      const C = sum([1, 2, 5]);
+      const F = sum([3, 4, 6]);
+      const A = sum([7, 8, 11]);
+      const D = sum([9, 10, 12]);
+      const H = sum([13, 14, 17]);
+      const P = sum([15, 16, 18]);
+      const G = sum([19, 20, 23]);
+      const X = sum([21, 22, 24]);
+
+      const CF = C - F;
+      const AD = A - D;
+      const HP = H - P;
+      const GX = G - X;
+
+      const type = [
+        letter("C", "F", CF),
+        letter("A", "D", AD),
+        letter("H", "P", HP),
+        letter("G", "X", GX)
+      ].join("");
+
+      const sorted = MODEL_PROTOTYPES
+        .map((prototype) => {
+          const distance = Math.sqrt(
+            (CF - prototype.vector.CF) ** 2 +
+            (AD - prototype.vector.AD) ** 2 +
+            (HP - prototype.vector.HP) ** 2 +
+            (GX - prototype.vector.GX) ** 2
+          );
+          return { ...prototype, distance };
+        })
+        .sort((a, b) => a.distance - b.distance);
+
+      const top3 = sorted.slice(0, 3);
+      const maxDistance = top3[top3.length - 1].distance || 1;
+      const minDistance = top3[0].distance;
+
+      const viewTop3 = top3.map((item) => {
+        const base = maxDistance === minDistance
+          ? 100
+          : Math.round(100 - ((item.distance - minDistance) / (maxDistance - minDistance)) * 30 - item.distance * 4);
+        return {
+          ...item,
+          similarity: Math.max(55, Math.min(96, base))
+        };
+      });
+
+      $("#mainModelText").textContent = viewTop3[0].name;
+      $("#typeText").textContent = `LLMTI · ${type}`;
+
+      const dominantLetters = [
+        CF > 0 ? "C" : CF < 0 ? "F" : "M",
+        AD > 0 ? "A" : AD < 0 ? "D" : "M",
+        HP > 0 ? "H" : HP < 0 ? "P" : "M",
+        GX > 0 ? "G" : GX < 0 ? "X" : "M"
+      ];
+
+      const explainText = dominantLetters
+        .filter((key, index, list) => list.indexOf(key) === index && DESCRIPTIONS[key])
+        .map((key) => DESCRIPTIONS[key])
+        .join(" ");
+
+      $("#summaryText").textContent = `你最接近 ${viewTop3[0].name}。整体来看，${viewTop3[0].desc}${explainText ? ` ${explainText}` : ""}`;
+
+      const pillRow = $("#pillRow");
+      pillRow.innerHTML = "";
+      [
+        `最接近：${viewTop3[0].name}`, 
+        `第二匹配：${viewTop3[1].name}`, 
+        `第三匹配：${viewTop3[2].name}`, 
+        `完成度：${QUESTIONS.length} / ${QUESTIONS.length}`
+      ].forEach((text) => {
+        const pill = document.createElement("div");
+        pill.className = "pill";
+        pill.textContent = text;
+        pillRow.appendChild(pill);
+      });
+
+      const modelList = $("#modelList");
+      modelList.innerHTML = "";
+      viewTop3.forEach((item, index) => {
+        const block = document.createElement("div");
+        block.className = "model-item";
+        block.innerHTML = `
+          <div><strong>Top ${index + 1} · ${item.name}</strong> · 匹配度 ${item.similarity}%</div>
+          <div class="small">${item.desc}</div>
+        `;
+        modelList.appendChild(block);
+      });
+
+      const dims = [
+        { key: "CF", left: "F", right: "C", value: CF, leftScore: F, rightScore: C },
+        { key: "AD", left: "D", right: "A", value: AD, leftScore: D, rightScore: A },
+        { key: "HP", left: "P", right: "H", value: HP, leftScore: P, rightScore: H },
+        { key: "GX", left: "X", right: "G", value: GX, leftScore: X, rightScore: G }
+      ];
+
+      const barsBox = $("#barsBox");
+      barsBox.innerHTML = "";
+      dims.forEach((dim) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        const pct = dimPercent(dim.value);
+        row.innerHTML = `
+          <div class="bar-head">
+            <span>${dim.left}</span>
+            <span>${dim.key} · ${dim.value > 0 ? "+" : ""}${dim.value}</span>
+            <span>${dim.right}</span>
+          </div>
+          <div class="dual">
+            <div class="leftbar" style="width:${dim.value < 0 ? pct / 2 : 0}%"></div>
+            <div class="rightbar" style="width:${dim.value > 0 ? pct / 2 : 0}%"></div>
+          </div>
+          <div class="small">${dim.left} 向得分 = ${dim.leftScore}，${dim.right} 向得分 = ${dim.rightScore}</div>
+        `;
+        barsBox.appendChild(row);
+      });
+
+      $("#rawText").innerHTML = `C = ${C}，F = ${F}<br>A = ${A}，D = ${D}<br>H = ${H}，P = ${P}<br>G = ${G}，X = ${X}`;
+      showScreen("result");
+    }
+
+    modalOkBtn.addEventListener("click", () => {
+      closeModal(true);
+    });
+
+    modalCancelBtn.addEventListener("click", () => {
+      closeModal(false);
+    });
+
+    modalOverlay.addEventListener("click", (event) => {
+      if (event.target === modalOverlay) {
+        closeModal(false);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && modalResolve) {
+        closeModal(false);
+      }
+    });
+
+    $("#startBtn").addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      if (answeredCount() > 0) {
+        const confirmed = await showConfirm("开始测试会清除当前作答进度，确认重新开始吗？");
+        if (!confirmed) return;
+      }
+
+      clearState();
+      renderQuestion();
+      showScreen("test");
+    }, true);
+
+    $("#backHomeBtn").addEventListener("click", () => {
+      showScreen("home");
+    });
+
+    $("#backHomeFromResultBtn").addEventListener("click", () => {
+      showScreen("home");
+    });
+
+    $("#prevBtn").addEventListener("click", prevQuestion);
+
+    $("#nextBtn").addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      const question = QUESTIONS[currentIndex];
+      if (answers[question.id] == null) {
+        showNotice("请先完成当前题目再继续。");
+        return;
+      }
+
+      if (currentIndex < QUESTIONS.length - 1) {
+        currentIndex += 1;
+        renderQuestion();
+        return;
+      }
+
+      showResult();
+    }, true);
+
+    $("#restartBtn").addEventListener("click", () => {
+      clearState();
+      renderQuestion();
+      showScreen("test");
+    });
+
+    $("#jumpFirstUnansweredBtn").addEventListener("click", () => {
+      const index = findFirstUnanswered();
+      if (index >= 0) {
+        currentIndex = index;
+        renderQuestion();
+        return;
+      }
+
+      showResult();
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
